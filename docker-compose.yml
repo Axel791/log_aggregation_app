@@ -1,0 +1,80 @@
+version: '3.8'
+
+x-function: &base
+  working_dir: /opt/src
+  depends_on:
+    - db
+    - redis
+  networks:
+    - nginx_network
+  env_file:
+    - .env
+
+services:
+
+  nginx:
+    build: ./nginx
+    container_name: ${PROJECT_SLUG}_nginx
+    volumes:
+      - static_dir:/opt/src/static/
+      - media_dir:/opt/src/media/
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    networks:
+      - nginx_network
+
+  web:
+    <<: *base
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+      args:
+        APP_SCRIPT: entrypoint.sh
+    container_name: ${PROJECT_SLUG}_app
+    volumes:
+      - static_dir:/opt/src/static/
+      - media_dir:/opt/src/media/
+      - ./src:/opt/src:rw
+
+  celery:
+    <<: *base
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+      args:
+        APP_SCRIPT: worker_start.sh
+    container_name: ${PROJECT_SLUG}_celery
+    volumes:
+      - ./src/:/opt/src/:rw
+
+  db:
+    image: postgres:latest
+    container_name: ${PROJECT_SLUG}_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    networks:
+      - nginx_network
+
+  redis:
+    image: redis:latest
+    container_name: ${PROJECT_SLUG}_redis
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    networks:
+      - nginx_network
+
+volumes:
+  static_dir:
+  media_dir:
+  pgdata:
+
+networks:
+  nginx_network:
