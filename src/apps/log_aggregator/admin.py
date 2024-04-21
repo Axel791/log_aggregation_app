@@ -4,8 +4,21 @@ from django.utils.translation import gettext_lazy as l_
 from apps.log_aggregator.models import NginxLogEntry, ErrorLog
 
 
+class BaseLogAdmin(admin.ModelAdmin):
+    """Базовый клас для админки с логами"""
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(NginxLogEntry)
-class NginxLogEntryAdmin(admin.ModelAdmin):
+class NginxLogEntryAdmin(BaseLogAdmin):
     """AdminView для логов nginx"""
 
     # region Настройка листинга
@@ -34,7 +47,7 @@ class NginxLogEntryAdmin(admin.ModelAdmin):
 
 
 @admin.register(ErrorLog)
-class ErrorLogAdmin(admin.ModelAdmin):
+class ErrorLogAdmin(BaseLogAdmin):
     """AdminView для просмотра логов при ошибке парсинга."""
 
     # region Настройки листинга
@@ -59,15 +72,6 @@ class ErrorLogAdmin(admin.ModelAdmin):
 
     def get_process_display(self, obj):
         return obj.get_process_display()
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
 
     get_process_display.admin_order_field = 'process'
     get_process_display.short_description = 'Процесс'
