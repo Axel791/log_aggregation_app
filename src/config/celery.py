@@ -49,7 +49,6 @@ class BaseTask(Task):
         self.process(*args, **kwargs)
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        """Вызовется если задача закончилась с ошибкой"""
         logger.error(f"Задача {self.name} (ID: {task_id}) не выполнена. Ошибка: {exc}. Подробности: {einfo}")
 
     def on_success(self, retval, task_id, args, kwargs):

@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     # Библиотеки
     'rest_framework',
     'django_filters',
+    'drf_yasg',
 
     # Приложения
     'apps.log_aggregator',
@@ -104,6 +105,13 @@ LOGGING = {
         "gunicorn.error": {"handlers": ["console"], "level": "INFO"},
         "gunicorn.access": {"handlers": ["console"], "level": "INFO"},
     },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
 }
 
 LANGUAGE_CODE = 'en-us'
