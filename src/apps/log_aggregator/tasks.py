@@ -15,7 +15,7 @@ class SplitFileTask(BaseTask):
     name = 'split_file_task'
 
     def process(self, file_path):
-        chunk_size = getattr(settings, 'CHUNK_SIZE', 1024 * 1024)
+        chunk_size = getattr(settings, 'CHUNK_SIZE', 1024 * 1024)  # 1 MB
         chunks = []
         try:
             with open(file_path, 'r') as file:
